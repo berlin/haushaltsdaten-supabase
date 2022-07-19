@@ -1,32 +1,14 @@
 ![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 # Haushaltsdaten Supabase
 
 <!--
-
-How to:
-
-- You dont need to use every section. Only the ones that apply to your project.
-- Adjust the files on .github/ISSUE_TEMPLATE/* how you need them
-- Adjust the file on .github/CODEOWNERS to match your team
-- If you use staging and main branches use this template for .github/renovate.json
-
-
-```json
-{
-   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "@inpyjamas"
-  ],
-    "baseBranches": [
-    "staging"
-  ]
-}
-```
 
 Bonus:
 
@@ -52,18 +34,28 @@ Small supabase setup for haushaltsdaten 2022/2023 sprint project.
 
 - Docker
 - Supabase Account
+- Deno
 
 ## Installation
 
-## Usage or Deployment
+To install this project, run the following command:
 
-## Development
-
-## Tests
+```bash
+git clone git@github.com:berlin/haushaltsdaten-supabase.git
+cd haushaltsdaten-supabase
+supabase link --project-ref <YOUR PROJECT REF>
+supabase db remote set <YOUR DB URL>
+supabase db push
+# use some kind of tool like TablePlus to populate the db with data from
+# https://daten.berlin.de/datensaetze?title=doppelhaushalt&field_license_tid=All&field_publisher_tid=All&field_geo_granularity_tid=All&field_temporal_granularity_tid=All&field_geo_coverage_tid=All&state=open
+# and refresh
+# the materilized view
+supabase functions deploy treemap-data
+```
 
 ## Contributing
 
-## Contributors ✨
+### Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
