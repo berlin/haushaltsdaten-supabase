@@ -53,6 +53,33 @@ supabase db push
 supabase functions deploy treemap-data
 ```
 
+## Usage Functions
+
+```bash
+# Make a request to get the all the `Einnahmetitel` data:
+curl -L -X POST 'https://zrbypchhbikbfvgqptbk.functions.supabase.co/treemap-data' -H 'Authorization: Bearer <YOUR ANON KEY HERE>'
+# Make a request to get the all the `Ausgabetitel` data:
+curl -L -X POST 'https://zrbypchhbikbfvgqptbk.functions.supabase.co/treemap-data?type=Ausgabetitel' -H 'Authorization: Bearer <YOUR ANON KEY HERE>'
+# Make a request to get the all the `Einnahmetitel` data for the area Mitte
+# The areas can be filtered with the following queries
+#
+# key: "hauptverwaltung" gives you: "Hauptverwaltung",
+# key: "pankow" gives you: "Pankow",
+# key: "reinickendorf" gives you: "Reinickendorf",
+# key: "steglitz_zehlendorf" gives you: "Steglitz-Zehlendorf",
+# key: "friedrichshain_kreuzberg" gives you: "Friedrichshain-Kreuzberg",
+# key: "marzahn_hellersdorf" gives you: "Marzahn-Hellersdorf",
+# key: "neukoelln" gives you: "Neukölln",
+# key: "lichtenberg" gives you: "Lichtenberg",
+# key: "treptow_koepenick" gives you: "Treptow-Köpenick",
+# key: "tempelhof_schoeneberg" gives you: "Tempelhof-Schöneberg",
+# key: "spandau" gives you: "Spandau",
+# key: "mitte" gives you: "Mitte",
+# key: "charlottenburg_wilmersdorf" gives you: "Charlottenburg-Wilmersdorf",
+#
+curl -L -X POST 'https://zrbypchhbikbfvgqptbk.functions.supabase.co/treemap-data?bezirk=mitte' -H 'Authorization: Bearer <YOUR ANON KEY HERE>'
+```
+
 ## Contributing
 
 ### Contributors ✨
