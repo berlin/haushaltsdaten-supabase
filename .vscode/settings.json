@@ -1,0 +1,37 @@
+{
+  "workbench.colorCustomizations": {
+    "activityBar.activeBackground": "#9b49ec",
+    "activityBar.activeBorder": "#eda052",
+    "activityBar.background": "#9b49ec",
+    "activityBar.foreground": "#e7e7e7",
+    "activityBar.inactiveForeground": "#e7e7e799",
+    "activityBarBadge.background": "#eda052",
+    "activityBarBadge.foreground": "#15202b",
+    "sash.hoverBorder": "#9b49ec",
+    "statusBar.background": "#821be7",
+    "statusBar.foreground": "#e7e7e7",
+    "statusBarItem.hoverBackground": "#9b49ec",
+    "statusBarItem.remoteBackground": "#821be7",
+    "statusBarItem.remoteForeground": "#e7e7e7",
+    "titleBar.activeBackground": "#821be7",
+    "titleBar.activeForeground": "#e7e7e7",
+    "titleBar.inactiveBackground": "#821be799",
+    "titleBar.inactiveForeground": "#e7e7e799"
+  },
+  "peacock.color": "#821be7",
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 54322,
+      "driver": "PostgreSQL",
+      "name": "haushaltsdaten local",
+      "group": "haushaltsdaten",
+      "database": "postgres",
+      "username": "postgres",
+      "password": "postgres"
+    }
+  ],
+  "deno.enable": true,
+  "deno.unstable": true
+}
