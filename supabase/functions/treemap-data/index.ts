@@ -3,27 +3,44 @@
 // This enables autocomplete, go to definition, etc.
 
 import { serve } from "https://deno.land/std@0.131.0/http/server.ts";
-// import postgres from "https://deno.land/x/postgresjs/mod.js";
-// import _ from "https://deno.land/x/lodash@4.17.19/lodash.js";
-
-// const host = Deno.env.get("POSTGRES_HOST") || "localhost";
-// const s_port = Deno.env.get("POSTGRES_PORT") || "54322";
-// const user = Deno.env.get("POSTGRES_USER") || "postgres";
-// const password = Deno.env.get("POSTGRES_PASSWORD") || "postgres";
-// const database = Deno.env.get("POSTGRES_DATABASE") || "postgres";
-// const port = parseInt(s_port, 10);
-// const sql = postgres({
-// 	host,
-// 	port,
-// 	user,
-// 	password,
-// 	database,
-// });
-// import { groupBy } from "https://raw.githubusercontent.com/lodash/lodash/4.17.21-es/lodash.js";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@1.35.3";
-const groupBy = (obj: Record<string, any>, prop: string) => {
-	return obj.reduce((acc: any, item: Record<string, any>) => {
+
+interface TreeMapItem {
+	id: string;
+	typ: string;
+	bezeichnung: string;
+	bereich: string;
+	bereichs_bezeichnung: string;
+	einzelplan: string;
+	einzelplan_bezeichnung: string;
+	kapitel: string;
+	kapitel_bezeichnung: string;
+	hauptgruppe: string;
+	hauptgruppen_bezeichnung: string;
+	obergruppe: string;
+	obergruppen_bezeichnung: string;
+	gruppe: string;
+	gruppen_bezeichnung: string;
+	hauptfunktion: string;
+	hauptfunktions_bezeichnung: string;
+	oberfunktion: string;
+	oberfunktions_bezeichnung: string;
+	funktion: string;
+	funktions_bezeichnung: string;
+	titel_art: string;
+	titel: string;
+	titel_bezeichnung: string;
+	jahr: string;
+	betrag_typ: string;
+	betrag: string;
+	value: number;
+	search_document?: string;
+}
+// deno-lint-ignore no-explicit-any
+const groupBy = (obj: any, prop: string) => {
+	// deno-lint-ignore no-explicit-any
+	return obj.reduce((acc: any, item: any) => {
 		if (!acc[item[prop]]) {
 			acc[item[prop]] = [];
 		}
@@ -44,26 +61,28 @@ const supabaseClient = createClient(
 		"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs",
 );
 
-const data: { name: string; children: unknown[] } = {
+// deno-lint-ignore no-explicit-any
+const data: { name: string; children: any } = {
 	name: "Übersicht",
 	children: [],
 };
-let bezirk = "";
-// const bezirke = [
-// 	"hauptverwaltung",
-// 	"pankow",
-// 	"reinickendorf",
-// 	"steglitz_zehlendorf",
-// 	"friedrichshain_kreuzberg",
-// 	"marzahn_hellersdorf",
-// 	"neukoelln",
-// 	"lichtenberg",
-// 	"treptow_koepenick",
-// 	"tempelhof_schoeneberg",
-// 	"spandau",
-// 	"mitte",
-// 	"charlottenburg_wilmersdorf",
-// ];
+
+type Bezirk =
+	| "hauptverwaltung"
+	| "pankow"
+	| "reinickendorf"
+	| "steglitz_zehlendorf"
+	| "friedrichshain_kreuzberg"
+	| "marzahn_hellersdorf"
+	| "neukoelln"
+	| "lichtenberg"
+	| "treptow_koepenick"
+	| "tempelhof_schoeneberg"
+	| "spandau"
+	| "mitte"
+	| "charlottenburg_wilmersdorf"
+	| "";
+let bezirk: Bezirk = "";
 
 const bezirkeHashMap: Record<string, string> = {
 	hauptverwaltung: "Hauptverwaltung",
@@ -121,7 +140,7 @@ serve(async (req) => {
 					},
 				);
 			}
-			bezirk = bezirkeHashMap[searchParams.get("bezirk")!];
+			bezirk = bezirkeHashMap[searchParams.get("bezirk")!] as Bezirk;
 			hasBezirkFilter = true;
 		}
 		let query = supabaseClient
@@ -146,7 +165,8 @@ serve(async (req) => {
 			console.error(dataError);
 			throw new Error("no data found");
 		}
-		let res = groupBy(result, "hauptfunktion");
+		// deno-lint-ignore no-explicit-any
+		let res: Record<string, any> = groupBy(result, "hauptfunktion");
 		result.forEach((item, i, arr) => {
 			delete item.search_document;
 			arr[i].value = calcValue([item]);
@@ -162,7 +182,8 @@ serve(async (req) => {
 			};
 		});
 
-		res = res.map((hf: any) => {
+		// deno-lint-ignore no-explicit-any
+		res = res.map((hf: Record<string, any>) => {
 			return {
 				...hf,
 				children: Object.keys(hf.children).map((key) => {
@@ -177,9 +198,11 @@ serve(async (req) => {
 			};
 		});
 
-		res = res.map((hf: any) => {
+		// deno-lint-ignore no-explicit-any
+		res = res.map((hf: Record<string, any>) => {
 			return {
 				...hf,
+				// deno-lint-ignore no-explicit-any
 				children: hf.children.map((of: any) => {
 					return {
 						...of,
