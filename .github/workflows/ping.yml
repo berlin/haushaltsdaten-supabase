@@ -1,0 +1,20 @@
+name: "Ping the API"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 1 * *"
+  repository_dispatch:
+    types: [cron]
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    name: A job to start ping the database api
+    steps:
+      - name: ping it
+        env:
+          ANON_TOKEN: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyYnlwY2hoYmlrYmZ2Z3FwdGJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NTc1NDUxOTMsImV4cCI6MTk3MzEyMTE5M30.O1QOOcsmuVOmwsIjMPJbIEwKWA1XUtZR9SrBNAKM2pk
+        run: |
+          curl 'https://zrbypchhbikbfvgqptbk.supabase.co/rest/v1/' \
+          -H "apikey: $ANON_TOKEN" \
+          -H "Authorization: Bearer $ANON_TOKEN"
