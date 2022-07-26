@@ -104,7 +104,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 ## Content Licencing
 
-Texts and content available as [CC BY](https://creativecommons.org/licenses/by/3.0/de/).
+Files in folder `./data` are available as [CC BY](https://creativecommons.org/licenses/by/3.0/de/) from [daten.berlin.de](https://daten.berlin.de/datensaetze)
 
 ## Credits
 

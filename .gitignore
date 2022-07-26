@@ -129,5 +129,3 @@ dist
 .yarn/install-state.gz
 .pnp.*
 data/postgres
-data/220707_OpenData_22_23.csv
-data/220707_OpenData_22_23.xlsx
