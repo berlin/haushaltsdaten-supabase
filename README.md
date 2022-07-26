@@ -8,33 +8,16 @@
 
 # Haushaltsdaten Supabase
 
-<!--
-
-Bonus:
-
-Use all-contributors
-
-npx all-contributors-cli check
-npx all-contributors-cli add ff6347 doc
-
-You can use it on GitHub just by commeting on PRs and issues:
-
-```
-@all-contributors please add @ff6347 for infrastructure, tests and code
-```
-Read more here https://allcontributors.org/
-
-
-Get fancy shields at https://shields.io
- -->
-
 Small supabase setup for haushaltsdaten 2022/2023 sprint project.
 
 ## Prerequisites
 
-- Docker
-- Supabase Account
-- Deno
+- [Docker](https://docker.com)
+- [Supabase](https://supabase.com) Account
+- [Supabase CLI](https://github.com/supabase/cli)
+- "Haushaltsdaten" data from https://daten.berlin.de/datensaetze/ exported as CSV (2022/23 is provided in this repo)
+  - Use Excel File > Save As > CSV
+- [Deno](https://deno.land/) for debugging only
 
 ## Installation
 
@@ -43,17 +26,56 @@ To install this project, run the following command:
 ```bash
 git clone git@github.com:berlin/haushaltsdaten-supabase.git
 cd haushaltsdaten-supabase
+supabase start
 supabase link --project-ref <YOUR PROJECT REF>
 supabase db remote set <YOUR DB URL>
 supabase db push
-# use some kind of tool like TablePlus to populate the db with data from
-# https://daten.berlin.de/datensaetze?title=doppelhaushalt&field_license_tid=All&field_publisher_tid=All&field_geo_granularity_tid=All&field_temporal_granularity_tid=All&field_geo_coverage_tid=All&state=open
-# and refresh
-# the materilized view
-supabase functions deploy treemap-data
 ```
 
+You will need use some kind of tool like TablePlus, Postico or PGAdmin to populate the db with data from. If you are not familiar with Postgres Databases use TablePlus. It has the easiest interface.
+
+For your local database instance you can use the following credentials:
+
+- User: postgres
+- Password: postgres
+- Database: postgres
+
+On the remote database the password was set by you when you created the project.
+
+You will have to import the data only in the remote DB if you dont want to make changes to the schema.
+
+When importing the data into the table `haushaltsdaten_22_23` Make sure to use `;` as delimiter.
+
+![](./docs/tableplus-import.png)
+
+When your data is imported you need to refresh the materialized view. Run this query in your database tool.
+
+```sql
+REFRESH MATERIALIZED VIEW haushaltsdaten_2022;
+```
+
+## Update the Data
+
+Once a new "Haushaltsplan" is published you will have to:
+
+- Import the data into a new table locally
+- Create a new materialized view for the data (see the file [supabase/migrations/20220712140254_mat_view_add_document.sql](./supabase/migrations/20220712140254_mat_view_add_document.sql))
+- Update the search function to use that new materialized view (see the file [supabase/migrations/20220725123424_search_function.sql](./supabase/migrations/20220725123424_search_function.sql))
+
+We recommend to do this locally and afterwards push these changes to the remote database.
+
+```bash
+supabase start
+# make your adjustments
+supabase db commit <YOUR COMMIT MESSAGE>
+supabase db push
+```
+
+Then populate the new table on the remote with the new data and refresh your new materialized view.
+
 ## Usage Functions
+
+The functions are currently not used in production.
 
 ```bash
 # Make a request to get the all the `Einnahmetitel` data:
