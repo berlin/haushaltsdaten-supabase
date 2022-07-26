@@ -6,22 +6,25 @@
 
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-# Haushaltsdaten Supabase
+# Haushaltsdaten Supabase Backend
 
-Small supabase setup for haushaltsdaten 2022/2023 sprint project.
+Small supabase setup for [haushaltsdaten visualization project](https://haushaltsdaten.odis-berlin.de/) by [ODIS](https://odis-berlin.de/). See the frontend repo [here](https://github.com/berlin/haushaltsdaten)
 
 ## Prerequisites
 
 - [Docker](https://docker.com)
 - [Supabase](https://supabase.com) Account
-- [Supabase CLI](https://github.com/supabase/cli)
+- A Supabase project to work with
+- The [Supabase CLI](https://github.com/supabase/cli)
 - "Haushaltsdaten" data from https://daten.berlin.de/datensaetze/ exported as CSV (2022/23 is provided in this repo)
   - Use Excel File > Save As > CSV
-- [Deno](https://deno.land/) for debugging only
+- [Deno](https://deno.land/) for debugging edge functions only
+
+If you don't feel comfortable with having your data stored on supabase.com (which uses AWS) you can run your own supabase setup. See the [guides on self hosting](https://supabase.com/docs/guides/hosting/overview) and the [docker examples](https://github.com/supabase/supabase/tree/master/docker) in their public repo.
 
 ## Installation
 
-To install this project, run the following command:
+_(The following steps assume you are using the hosted version of supabase)_ To install this project, run the following command:
 
 ```bash
 git clone git@github.com:berlin/haushaltsdaten-supabase.git
@@ -36,17 +39,21 @@ You will need use some kind of tool like TablePlus, Postico or PGAdmin to popula
 
 For your local database instance you can use the following credentials:
 
-- User: postgres
-- Password: postgres
-- Database: postgres
+- User: `postgres`
+- Password: `postgres`
+- Database: `postgres`
 
 On the remote database the password was set by you when you created the project.
 
-You will have to import the data only in the remote DB if you dont want to make changes to the schema.
+You will have to import the data only in the remote DB. If you want to try things out first or you want to make changes to the schema use the local instance.
 
-When importing the data into the table `haushaltsdaten_22_23` Make sure to use `;` as delimiter.
+---
+
+**Hint!:** **When importing the data into the table `haushaltsdaten_22_23` Make sure to use `;` as delimiter.**
 
 ![](./docs/tableplus-import.png)
+
+---
 
 When your data is imported you need to refresh the materialized view. Run this query in your database tool.
 
@@ -75,7 +82,7 @@ Then populate the new table on the remote with the new data and refresh your new
 
 ## Usage Functions
 
-The functions are currently not used in production.
+The functions are currently not used in production. They where meant to be used as endpoint to obtain the data for the treemap view pre configured. We de this currently in the frontend.
 
 ```bash
 # Make a request to get the all the `Einnahmetitel` data:
