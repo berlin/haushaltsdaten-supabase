@@ -1,7 +1,7 @@
 @anon_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24ifQ.625_WdcF3KHqz5amU0x2X5WWHP-OEs_4qj0ssLNHzTs
 
 @host = http://localhost:54321
-@path = /functions/v1/treemap-data
+@path_functions = /functions/v1/treemap-data
 ### filter by bezirk
 # hauptverwaltung: "Hauptverwaltung",
 # pankow: "Pankow",
@@ -17,7 +17,10 @@
 # mitte: "Mitte",
 # charlottenburg_wilmersdorf: "Charlottenburg-Wilmersdorf",
 
-POST {{host}}{{path}}?type=Einnahmetitel&bezirk=mitte
+
+
+
+POST {{host}}{{path_functions}}?type=Einnahmetitel&bezirk=mitte
 Authorization: Bearer {{anon_token}}
 Content-Type: application/json
 
@@ -25,15 +28,24 @@ Content-Type: application/json
 ### filter bei Einnahmetitel (default)
 #  response is very large and might take some time
 
-POST {{host}}{{path}}
+POST {{host}}{{path_functions}}
 Authorization: Bearer {{anon_token}}
 Content-Type: application/json
 
 ### filter bei Ausgabetitel
 #  response is very large and might take some time
 
-POST {{host}}{{path}}?type=Ausgabetitel
+POST {{host}}{{path_functions}}?type=Ausgabetitel
 Authorization: Bearer {{anon_token}}
 Content-Type: application/json
 
 
+###
+
+
+POST {{host}}/rest/v1/rpc/ftc
+Content-Type: application/json
+apikey: {{anon_token}}
+Authorization: Bearer {{anon_token}}
+
+{ "search": "panke" }
