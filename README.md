@@ -131,9 +131,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
 
-## Content Licencing
+## Content Licensing
 
-Files in folder `./data` are available as [CC BY](https://creativecommons.org/licenses/by/3.0/de/) from [daten.berlin.de](https://daten.berlin.de/datensaetze)
+Files in folder [`./data`](/data) and the file [`./supabase/seed.sql`](./supabase/seed.sql) are available as [CC BY](https://creativecommons.org/licenses/by/3.0/de/) from [daten.berlin.de](https://daten.berlin.de/datensaetze)
 
 ## Credits
 
