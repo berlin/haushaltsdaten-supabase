@@ -58,7 +58,7 @@ You will have to import the data only in the remote DB. If you want to try thing
 When your data is imported you need to refresh the materialized view. Run this query in your database tool.
 
 ```sql
-REFRESH MATERIALIZED VIEW haushaltsdaten_2022;
+REFRESH MATERIALIZED VIEW haushaltsdaten_current;
 ```
 
 ## Update the Data
@@ -66,19 +66,28 @@ REFRESH MATERIALIZED VIEW haushaltsdaten_2022;
 Once a new "Haushaltsplan" is published you will have to:
 
 - Import the data into a new table locally
-- Create a new materialized view for the data (see the file [supabase/migrations/20220712140254_mat_view_add_document.sql](./supabase/migrations/20220712140254_mat_view_add_document.sql))
-- Update the search function to use that new materialized view (see the file [supabase/migrations/20220725123424_search_function.sql](./supabase/migrations/20220725123424_search_function.sql))
+- Update the materialized view query for the table `haushaltsdaten_current` to point at that new data
+- Refresh the materialized view
 
-We recommend to do this locally and afterwards push these changes to the remote database.
+We recommend to do this locally and afterwards push these changes to the remote database. Within this repo you will find an [workflow](./.github/workflows/deploy-to-supabase.yml) that updates the production database using GitHub Actions.
 
 ```bash
 supabase start
 # make your adjustments
-supabase db commit <YOUR COMMIT MESSAGE>
-supabase db push
+git switch -c your-update-data-branch
+db diff --file <your migration name> --schema public --use-migra
+git add .
+git commit -m "your commit message"
+git push origin your-update-data-branch
 ```
 
-Then populate the new table on the remote with the new data and refresh your new materialized view.
+Create your pull request against the `main` branch. Once merged the workflow will run and update the production database.
+
+Then populate the new table on the remote with the new data and refresh your materialized view.
+
+```sql
+REFRESH MATERIALIZED VIEW haushaltsdaten_current;
+```
 
 ## Usage Functions
 
@@ -110,6 +119,8 @@ curl -L -X POST 'https://zrbypchhbikbfvgqptbk.functions.supabase.co/treemap-data
 ```
 
 ## Contributing
+
+Please see the issues in the repo https://github.com/berlin/haushaltsdaten/issues if you like to contribute or open a new one.
 
 ### Contributors ✨
 
