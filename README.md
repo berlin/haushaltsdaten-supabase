@@ -66,8 +66,231 @@ REFRESH MATERIALIZED VIEW haushaltsdaten_current;
 Once a new "Haushaltsplan" is published you will have to:
 
 - Import the data into a new table locally
+- Add an ID column to the new table
 - Update the materialized view query for the table `haushaltsdaten_current` to point at that new data
+- If you want to display all years available years create the materialized view `haushaltsdaten_combined`
 - Refresh the materialized view
+
+### Import the data
+
+There is currently no script availalbe to automate this step. You will have to clean and import the data manually. We encoutered the following issues:
+
+- Data not in UTF8 (to check the encoding use [scripts/check-encoding.js](scripts/check-encoding.js) to convert the encoding use [scripts/convert-encoding.js](scripts/convert-encoding.js))
+- Data has no headers. We copied them over manually
+
+Therefore you will need to clean your data before import.
+
+### Add an ID column
+
+To add the ID colmn to your new table use this snippet.
+
+```sql
+BEGIN;
+-- start the transaction
+-- Attempt to perform the operation
+
+DO $$
+	-- start an anonymous block
+BEGIN
+	CREATE SEQUENCE tmp_id
+;
+	-- Creates a new sequence named 'tmp_id' for incremental value generation.
+	ALTER TABLE haushaltsdaten_2024_2025
+		ADD COLUMN "ID" int4;
+	-- Modifies the structure of the table 'haushaltsdaten_2024_2025' by adding a new column 'ID' of type integer.
+	ALTER TABLE haushaltsdaten_2024_2025
+		ADD PRIMARY KEY ("ID");
+	-- Modifies the table 'haushaltsdaten_2024_2025' by setting the 'ID' column as the primary key.
+	UPDATE
+		haushaltsdaten_2024_2025
+	SET
+		"ID" = nextval('tmp_id');
+	-- Updates the 'ID' column of the table with the next value from the sequence 'tmp_id'.
+	SELECT
+		*
+	FROM
+		haushaltsdaten_2024_2025
+	ORDER BY
+		"ID";
+	-- Retrieves all the data from the table 'haushaltsdaten_2024_2025' and orders it based on the 'ID' column.
+	DROP SEQUENCE tmp_id
+;
+	-- Removes the sequence 'tmp_id' from the database system.
+EXCEPTION -- A block that executes if an exception occurs in the above block
+WHEN OTHERS THEN
+	RAISE NOTICE 'An error has occured. Changes are being rolled back.';
+ROLLBACK;
+-- ends the current transaction and rolls back any changes that were made
+END
+$$;
+-- end the anonymous block
+COMMIT;
+
+-- if all operations were successful, end the transaction with changes
+```
+
+### Update the materialized view hausahltsdaten_current
+
+The `FROM` clause will have to point to your current data, if all years should be displayed you will have to create a new materialized view `haushaltsdaten_combined` and point to that.
+
+
+```sql
+drop materialized view if exists "public"."haushaltsdaten_current";
+
+create materialized view "public"."haushaltsdaten_current" as  SELECT h."ID" AS id,
+    h."Typ" AS typ,
+    h."Bezeichnung" AS bezeichnung,
+    h."Bereich" AS bereich,
+    h."Bereichsbezeichnung" AS bereichs_bezeichnung,
+    h."Einzelplan" AS einzelplan,
+    h."Einzelplanbezeichnung" AS einzelplan_bezeichnung,
+    h."Kapitel" AS kapitel,
+    h."Kapitelbezeichnung" AS kapitel_bezeichnung,
+    h."Hauptgruppe" AS hauptgruppe,
+    h."Hauptgruppenbezeichnung" AS hauptgruppen_bezeichnung,
+    h."Obergruppe" AS obergruppe,
+    h."Obergruppenbezeichnung" AS obergruppen_bezeichnung,
+    h."Gruppe" AS gruppe,
+    h."Gruppenbezeichnung" AS gruppen_bezeichnung,
+    h."Hauptfunktion" AS hauptfunktion,
+    h."Hauptfunktionsbezeichnung" AS hauptfunktions_bezeichnung,
+    h."Oberfunktion" AS oberfunktion,
+    h."Oberfunktionsbezeichnung" AS oberfunktions_bezeichnung,
+    h."Funktion" AS funktion,
+    h."Funktionsbezeichnung" AS funktions_bezeichnung,
+    h."Titelart" AS titel_art,
+    h."Titel" AS titel,
+    h."Titelbezeichnung" AS titel_bezeichnung,
+    h."Jahr" AS jahr,
+    h."BetragTyp" AS betrag_typ,
+    h."Betrag" AS betrag,
+    to_tsvector('german'::regconfig, ((((((((((((((((((((((((((((((((((((((((((((((((((COALESCE(h."Typ", ''::text) || ' '::text) || COALESCE(h."Bezeichnung", ''::text)) || ' '::text) || COALESCE(h."Bereich", ''::text)) || ' '::text) || COALESCE(h."Bereichsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Einzelplan", ''::text)) || ' '::text) || COALESCE(h."Einzelplanbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Kapitel", ''::text)) || ' '::text) || COALESCE(h."Kapitelbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Hauptgruppe", ''::text)) || ' '::text) || COALESCE(h."Hauptgruppenbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Obergruppe", ''::text)) || ' '::text) || COALESCE(h."Obergruppenbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Gruppe", ''::text)) || ' '::text) || COALESCE(h."Gruppenbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Hauptfunktion", ''::text)) || ' '::text) || COALESCE(h."Hauptfunktionsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Oberfunktion", ''::text)) || ' '::text) || COALESCE(h."Oberfunktionsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Funktion", ''::text)) || ' '::text) || COALESCE(h."Funktionsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Titelart", ''::text)) || ' '::text) || COALESCE(h."Titel", ''::text)) || ' '::text) || COALESCE(h."Titelbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Jahr", ''::text)) || ' '::text) || COALESCE(h."BetragTyp", ''::text)) || ' '::text) || COALESCE(h."Betrag", ''::text))) AS search_document
+   FROM haushaltsdaten_combined h;
+REFRESH MATERIALIZED VIEW haushaltsdaten_current;
+```
+
+### combine all years into one table
+
+To have all years available we create a materialized view that combines all years into one table called `haushaltsdaten_combined`.
+
+```sql
+CREATE MATERIALIZED VIEW haushaltsdaten_combined AS
+SELECT
+    "Typ",
+    "Bezeichnung",
+    "Bereich",
+    "Bereichsbezeichnung",
+    "Einzelplan",
+    "Einzelplanbezeichnung",
+    "Kapitel",
+    "Kapitelbezeichnung",
+    "Hauptgruppe",
+    "Hauptgruppenbezeichnung",
+    "Obergruppe",
+    "Obergruppenbezeichnung",
+    "Gruppe",
+    "Gruppenbezeichnung",
+    "Hauptfunktion",
+    "Hauptfunktionsbezeichnung",
+    "Oberfunktion",
+    "Oberfunktionsbezeichnung",
+    "Funktion",
+    "Funktionsbezeichnung",
+    "Titelart",
+    "Titel",
+    "Titelbezeichnung",
+    "Jahr",
+    "BetragTyp",
+    "Betrag",
+    "ID"
+FROM nachtragshaushalt_opendata_22_23
+UNION ALL
+SELECT
+    "Typ",
+    "Bezeichnung",
+    "Bereich",
+    "Bereichsbezeichnung",
+    "Einzelplan",
+    "Einzelplanbezeichnung",
+    "Kapitel",
+    "Kapitelbezeichnung",
+    "Hauptgruppe",
+    "Hauptgruppenbezeichnung",
+    "Obergruppe",
+    "Obergruppenbezeichnung",
+    "Gruppe",
+    "Gruppenbezeichnung",
+    "Hauptfunktion",
+    "Hauptfunktionsbezeichnung",
+    "Oberfunktion",
+    "Oberfunktionsbezeichnung",
+    "Funktion",
+    "Funktionsbezeichnung",
+    "Titelart",
+    "Titel",
+    "Titelbezeichnung",
+    "Jahr",
+    "BetragTyp",
+    "Betrag",
+    "ID"
+FROM haushaltsdaten_2024_2025;
+
+```
+
+When using the combined table make sure to update the ftc function for the remote procedure calls to also point at the `hausahltsdaten_combined` table.
+
+```sql
+CREATE OR REPLACE FUNCTION public.ftc(search character varying)
+ RETURNS TABLE(id text, typ text, bezeichnung text, bereich text, bereichs_bezeichnung text, einzelplan text, einzelplan_bezeichnung text, kapitel text, kapitel_bezeichnung text, hauptgruppe text, hauptgruppen_bezeichnung text, obergruppe text, obergruppen_bezeichnung text, gruppe text, gruppen_bezeichnung text, hauptfunktion text, hauptfunktions_bezeichnung text, oberfunktion text, oberfunktions_bezeichnung text, funktion text, funktions_bezeichnung text, titel_art text, titel text, titel_bezeichnung text, jahr text, betrag_typ text, betrag text)
+ LANGUAGE plpgsql
+AS $function$
+BEGIN
+	RETURN query
+	SELECT
+		h.id::text,
+		h.typ,
+		h.bezeichnung,
+		h.bereich,
+		h.bereichs_bezeichnung,
+		h.einzelplan,
+		h.einzelplan_bezeichnung,
+		h.kapitel,
+		h.kapitel_bezeichnung,
+		h.hauptgruppe,
+		h.hauptgruppen_bezeichnung,
+		h.obergruppe,
+		h.obergruppen_bezeichnung,
+		h.gruppe,
+		h.gruppen_bezeichnung,
+		h.hauptfunktion,
+		h.hauptfunktions_bezeichnung,
+		h.oberfunktion,
+		h.oberfunktions_bezeichnung,
+		h.funktion,
+		h.funktions_bezeichnung,
+		h.titel_art,
+		h.titel,
+		h.titel_bezeichnung,
+		h.jahr,
+		h.betrag_typ,
+		h.betrag
+	FROM
+		haushaltsdaten_combined h
+	WHERE
+		search_document @@ plainto_tsquery('german', search);
+END;
+$function$
+
+```
+
+### Refresh the materialized view
+
+To refresh the materialized view you can use the following command:
+
+```sql
+REFRESH MATERIALIZED VIEW haushaltsdaten_current;
+REFRESH MATERIALIZED VIEW haushaltsdaten_combined;
+```
 
 We recommend to do this locally and afterwards push these changes to the remote database. Within this repo you will find an [workflow](./.github/workflows/deploy-to-supabase.yml) that updates the production database using GitHub Actions.
 
@@ -83,10 +306,11 @@ git push origin your-update-data-branch
 
 Create your pull request against the `main` branch. Once merged the workflow will run and update the production database.
 
-Then populate the new table on the remote with the new data and refresh your materialized view.
+Then populate the new table on the remote with the new data and refresh your materialized views.
 
 ```sql
 REFRESH MATERIALIZED VIEW haushaltsdaten_current;
+REFRESH MATERIALIZED VIEW haushaltsdaten_combined;
 ```
 
 ## Usage Functions

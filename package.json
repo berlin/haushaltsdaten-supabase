@@ -1,0 +1,21 @@
+{
+  "type": "module",
+  "private": true,
+  "name": "haushaltsdaten-supabase",
+  "version": "0.1.0",
+  "description": "![](https://img.shields.io/badge/Built%20with%20%E2%9D%A4%EF%B8%8F-at%20Technologiestiftung%20Berlin-blue)",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "ff6347 <hash@ff6347.email>",
+  "license": "MIT",
+  "devDependencies": {
+    "chardet": "2.0.0",
+    "iconv-lite": "0.6.3"
+  }
+}
