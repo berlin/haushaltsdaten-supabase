@@ -168,20 +168,7 @@ create materialized view "public"."haushaltsdaten_current" as  SELECT h."ID" AS 
     to_tsvector('german'::regconfig, ((((((((((((((((((((((((((((((((((((((((((((((((((COALESCE(h."Typ", ''::text) || ' '::text) || COALESCE(h."Bezeichnung", ''::text)) || ' '::text) || COALESCE(h."Bereich", ''::text)) || ' '::text) || COALESCE(h."Bereichsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Einzelplan", ''::text)) || ' '::text) || COALESCE(h."Einzelplanbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Kapitel", ''::text)) || ' '::text) || COALESCE(h."Kapitelbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Hauptgruppe", ''::text)) || ' '::text) || COALESCE(h."Hauptgruppenbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Obergruppe", ''::text)) || ' '::text) || COALESCE(h."Obergruppenbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Gruppe", ''::text)) || ' '::text) || COALESCE(h."Gruppenbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Hauptfunktion", ''::text)) || ' '::text) || COALESCE(h."Hauptfunktionsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Oberfunktion", ''::text)) || ' '::text) || COALESCE(h."Oberfunktionsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Funktion", ''::text)) || ' '::text) || COALESCE(h."Funktionsbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Titelart", ''::text)) || ' '::text) || COALESCE(h."Titel", ''::text)) || ' '::text) || COALESCE(h."Titelbezeichnung", ''::text)) || ' '::text) || COALESCE(h."Jahr", ''::text)) || ' '::text) || COALESCE(h."BetragTyp", ''::text)) || ' '::text) || COALESCE(h."Betrag", ''::text))) AS search_document
    FROM haushaltsdaten_combined h;
 
-
-grant delete on table "public"."haushaltsdaten_2024_2025" to "anon";
-
-grant insert on table "public"."haushaltsdaten_2024_2025" to "anon";
-
-grant references on table "public"."haushaltsdaten_2024_2025" to "anon";
-
 grant select on table "public"."haushaltsdaten_2024_2025" to "anon";
-
-grant trigger on table "public"."haushaltsdaten_2024_2025" to "anon";
-
-grant truncate on table "public"."haushaltsdaten_2024_2025" to "anon";
-
-grant update on table "public"."haushaltsdaten_2024_2025" to "anon";
 
 grant delete on table "public"."haushaltsdaten_2024_2025" to "authenticated";
 
@@ -210,5 +197,3 @@ grant trigger on table "public"."haushaltsdaten_2024_2025" to "service_role";
 grant truncate on table "public"."haushaltsdaten_2024_2025" to "service_role";
 
 grant update on table "public"."haushaltsdaten_2024_2025" to "service_role";
-
-
